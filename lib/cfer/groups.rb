@@ -1,12 +1,14 @@
 require "cfer/groups/version"
 
-def resource_group(type, **options, &block)
-  Cfer::Core::Resource.extend_resource(type) do
-    class << self;
-      attr_accessor :block
+Cfer::Core::Stack.extend_stack do
+  def resource_group(type, **options, &block)
+    Cfer::Core::Resource.extend_resource(type) do
+      class << self;
+        attr_accessor :block
+      end
+      @block = block
+      include Cfer::Groups::ResourceGroup
     end
-    @block = block
-    include Cfer::Groups::ResourceGroup
   end
 end
 
