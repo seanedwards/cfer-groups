@@ -1,7 +1,6 @@
 require 'cfer/groups'
 
-Cfer::Groups::Stack::resource_group 'Cfer::Prefabs::SecurityGroupPair',
-  Ports: HashValidator.many('numeric') do |args|
+Cfer::Groups::Stack::resource_group 'Cfer::Prefabs::SecurityGroupPair' do |args|
   ports = args[:Ports]
 
   resource :ClientSG, 'AWS::EC2::SecurityGroup' do

@@ -1,5 +1,4 @@
 require 'cfer/groups/version'
-require 'hash_validator'
 require 'cfer/groups/stack'
 require 'cfer/groups/resource'
 require 'cfer/groups/resource_group'

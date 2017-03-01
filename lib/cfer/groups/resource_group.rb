@@ -18,14 +18,7 @@ module Cfer
           Properties: @properties
         }
 
-        validate_args!
         Docile.dsl_eval(self, @properties, &self.class.block)
-      end
-
-      def validate_args!
-        return unless self.class.validation
-        results = HashValidator.validate(@properties, self.class.validation)
-        raise "Beep." unless results.valid?
       end
 
       def resource(name, type, options = {}, &block)
