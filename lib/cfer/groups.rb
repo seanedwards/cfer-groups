@@ -22,23 +22,33 @@ module Cfer
       end
 
       def ref(obj)
-        Cfer::Core::Functions::Fn::ref name_of(obj)
+        self.group.ref(obj)
       end
 
       def get_att(obj, att)
-        Cfer::Core::Functions::Fn::get_att name_of(obj), att
+        self.group.get_att(obj, att)
       end
     end
 
     module ResourceGroup
 
       def initialize(name, type, stack, **options, &block)
-        super(name, "Custom::#{type}", stack, options, &block)
+        @resource_type = type
+        super(name, "AWS::CloudFormation::WaitConditionHandle", stack, options, &block)
       end
 
       def post_block
+        properties = self[:Properties]
+        self[:Properties] = {}
+
         self[:DependsOn] ||= []
-        Docile.dsl_eval(self, self[:Properties], &self.class.block)
+
+        self[:Metadata] = {
+          Type: @resource_type,
+          Properties: properties
+        }
+
+        Docile.dsl_eval(self, properties, &self.class.block)
       end
 
       def resource(name, type, options = {}, &block)
@@ -66,6 +76,14 @@ module Cfer
 
       def name_of(name)
         "#{@name}#{name}"
+      end
+
+      def ref(obj)
+        Cfer::Core::Functions::Fn::ref name_of(obj)
+      end
+
+      def get_att(obj, att)
+        Cfer::Core::Functions::Fn::get_att name_of(obj), att
       end
     end
 

@@ -1,7 +1,20 @@
 require 'cfer/groups'
 
+# A resource group is a collection of interrelated resources.
+# This example includes the basic resources to construct a simple VPC.
+# The type can be anything you'd like, but must be unique.
+# The :: syntax has no specific function, but looks like it fits in with AWS resources.
 resource_group 'Cfer::Examples::Network' do |args|
+
+  # Anything created inside the resource group has something prepended to the name.
+  # In vpc.rb we can see that this resource group is created with the name "Network"
+  # Therefore, this parameter will appear as "NetworkVpcName" in the final template.
+  #
+  # The `args` is a hash containing all of the properties that were set in vpc.rb
   parameter :VpcName, Default: args[:VpcName]
+
+  # Naming of resources works the same way as parameters.
+  # In vpc.rb this resource will be created as `NetworkVPC`
   resource :VPC, 'AWS::EC2::VPC' do
     cidr_block '172.42.0.0/16'
 
@@ -9,7 +22,12 @@ resource_group 'Cfer::Examples::Network' do |args|
     enable_dns_hostnames true
     instance_tenancy 'default'
 
+    # The ref() function translates the name into the current scope.
+    # If we were to create two networks, say `NetworkA` and `NetworkB`,
+    # the ref() function would know to reference `NetworkAVpcName` or `NetworkBVpcName`
     tag :Name, ref(:VpcName)
+
+    # The get_att() function also exists, and works the same way as ref()
   end
 
   resource :DefaultIGW, 'AWS::EC2::InternetGateway'
@@ -23,6 +41,8 @@ resource_group 'Cfer::Examples::Network' do |args|
     vpc_id ref(:VPC)
   end
 
+  # args are the preferred way of getting instance-specific values into your group.
+  # They work
   subnet_count = args[:Subnets] || 2
   (1..subnet_count).each do |i|
     resource "Subnet#{i}", 'AWS::EC2::Subnet' do
@@ -39,11 +59,16 @@ resource_group 'Cfer::Examples::Network' do |args|
     output "SubnetID#{i}", ref("Subnet#{i}")
   end
 
+
+  # If you need a scoped name directly, you can use the name_of() function.
+  # You can see this is used in the DependsOn attribute of this resource
+  # ref(:VpcName) is actually just defined as Fn::ref(name_of(:VpcName))
   resource :DefaultRoute, 'AWS::EC2::Route', DependsOn: [ name_of(:VpcIGW) ] do
     route_table_id ref(:RouteTable)
     gateway_id ref(:DefaultIGW)
     destination_cidr_block '0.0.0.0/0'
   end
 
+  # Outputs are named the same way. This output will appear in the template as `NetworkVpcId`
   output :VpcId, ref(:VPC)
 end
