@@ -8,6 +8,9 @@ include_template 'network_template.rb'
 resource :Network, 'Cfer::Examples::Network' do
   vpc_name "my-network"
   subnets 3
+
+  # Tags are applied to every resource in the group.
+  tag :Name, 'My Network'
 end
 
 # Resource groups will also insert an extra CloudFormation wait condition handle
