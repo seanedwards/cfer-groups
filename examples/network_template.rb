@@ -41,8 +41,9 @@ resource_group 'Cfer::Examples::Network' do |args|
     vpc_id ref(:VPC)
   end
 
-  # args are the preferred way of getting instance-specific values into your group.
-  # They work
+  # args are the preferred way of getting values into your group.
+  # They form a hash through the same mechanism that CloudFormation
+  # resources use.
   subnet_count = args[:Subnets] || 2
   (1..subnet_count).each do |i|
     resource "Subnet#{i}", 'AWS::EC2::Subnet' do
@@ -69,6 +70,6 @@ resource_group 'Cfer::Examples::Network' do |args|
     destination_cidr_block '0.0.0.0/0'
   end
 
-  # Outputs are named the same way. This output will appear in the template as `NetworkVpcId`
+  # Outputs are named the same way as everything else. This output will appear in the template as `NetworkVpcId`
   output :VpcId, ref(:VPC)
 end
