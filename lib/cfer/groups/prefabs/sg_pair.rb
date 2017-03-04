@@ -13,8 +13,8 @@ Cfer::Groups::Stack::resource_group 'Cfer::Prefabs::SecurityGroupPair' do |args|
     vpc_id args[:VpcId]
   end
 
-  ports.each do |port|
-    resource :ServerSGClientIngress, 'AWS::EC2::SecurityGroupIngress' do
+  ports.each_with_index do |port, i|
+    resource "ServerSGClientIngress#{i}", 'AWS::EC2::SecurityGroupIngress' do
       group_id ref(:ServerSG)
       ip_protocol 'tcp'
       from_port port
